@@ -1,6 +1,43 @@
 #include "CApp.h"
+#include "Util.h"
+#include "Game.h"
+
+#include <windowsx.h>
 
 CApp* CApp::m_inst = nullptr;
+
+ID2D1HwndRenderTarget* g_pRenderTarget = nullptr;
+IWICImagingFactory* g_pWICFactory = nullptr;
+
+HRESULT LoadBitmapFromFile(PCWSTR _wcFileName, ID2D1Bitmap** _pBitmap)
+{
+	HRESULT hr = S_OK;
+	IWICBitmapDecoder* pDecoder = nullptr;
+
+	hr = g_pWICFactory->CreateDecoderFromFilename(_wcFileName, NULL, GENERIC_READ, WICDecodeMetadataCacheOnLoad, &pDecoder);
+	if (FAILED(hr)) return hr;
+
+	IWICBitmapFrameDecode* pFrame = nullptr;
+	hr = pDecoder->GetFrame(0, &pFrame);
+	if (FAILED(hr)) return hr;
+
+	IWICFormatConverter* pConverter = nullptr;
+	hr = g_pWICFactory->CreateFormatConverter(&pConverter);
+	if (FAILED(hr)) return hr;
+
+	hr = pConverter->Initialize(pFrame, GUID_WICPixelFormat32bppPBGRA, WICBitmapDitherTypeNone, NULL, 0.0f, WICBitmapPaletteTypeCustom);
+	if (FAILED(hr)) return hr;
+
+	hr = g_pRenderTarget->CreateBitmapFromWicBitmap(pConverter, NULL, _pBitmap);
+	if (FAILED(hr)) return hr;
+
+
+	if (pConverter) { pConverter->Release(); pConverter = nullptr; }
+	if (pFrame) { pFrame->Release(); pFrame = nullptr; }
+	if (pDecoder) { pDecoder->Release(); pDecoder = nullptr; }
+
+	return hr;
+}
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
@@ -50,7 +87,7 @@ void CApp::CleanupDevice()
 	CoUninitialize();
 }
 
-HRESULT CApp::LoadBitmapFromFile(PCWSTR _wcFileName, ID2D1Bitmap** _ppBitmap)
+HRESULT CApp::LoadBitmapFromFile(PCWSTR _wcFileName, ID2D1Bitmap* _pBitmap)
 {
 	HRESULT hr = S_OK;
 	IWICBitmapDecoder* pDecoder = nullptr;
@@ -69,7 +106,7 @@ HRESULT CApp::LoadBitmapFromFile(PCWSTR _wcFileName, ID2D1Bitmap** _ppBitmap)
 	hr = pConverter->Initialize(pFrame, GUID_WICPixelFormat32bppPBGRA, WICBitmapDitherTypeNone, NULL, 0.0f, WICBitmapPaletteTypeCustom);
 	if (FAILED(hr)) return hr;
 
-	hr = g_pRenderTarget->CreateBitmapFromWicBitmap(pConverter, NULL, _ppBitmap);
+	hr = g_pRenderTarget->CreateBitmapFromWicBitmap(pConverter, NULL, &_pBitmap);
 	if (FAILED(hr)) return hr;
 
 
@@ -80,7 +117,7 @@ HRESULT CApp::LoadBitmapFromFile(PCWSTR _wcFileName, ID2D1Bitmap** _ppBitmap)
 	return hr;
 }
 
-HRESULT CApp::Init(HINSTANCE hInstance, int nCmdShow, int screenWidth, int screenHeight)
+HRESULT CApp::Init(HINSTANCE hInstance, int nCmdShow)
 {
 	WNDCLASSEX wcex;
 	wcex.cbSize = sizeof(WNDCLASSEX);
@@ -98,11 +135,8 @@ HRESULT CApp::Init(HINSTANCE hInstance, int nCmdShow, int screenWidth, int scree
 	if (!RegisterClassEx(&wcex))
 		return E_FAIL;
 
-	m_screenWidth = screenWidth;
-	m_screenHeight = screenHeight;
-
 	m_hInst = hInstance;
-	RECT rc = { 0, 0, screenWidth, screenHeight };
+	RECT rc = { 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT };
 	AdjustWindowRect(&rc, WS_OVERLAPPEDWINDOW, FALSE);
 
 	m_hWnd = CreateWindow(L"D2DTutWindowClass", L"D2D1 Tutorial 1 : simple app",
@@ -125,10 +159,12 @@ HRESULT CApp::Init(HINSTANCE hInstance, int nCmdShow, int screenWidth, int scree
 
 void CApp::Input()
 {
+	CScene::GetInst()->Input();
 }
 
 void CApp::Update()
 {
+	CScene::GetInst()->Update();
 }
 
 void CApp::Render()
@@ -138,10 +174,10 @@ void CApp::Render()
 
 	D2D1_SIZE_F rtSize = g_pRenderTarget->GetSize();
 
+	CScene::GetInst()->Render(g_pRenderTarget, g_pBlackBrush);
 
-
-	WCHAR wcText[] = L"1.23 fps";
-	g_pRenderTarget->DrawTextW(wcText, ARRAYSIZE(wcText) - 1, g_pDWTextFormat, D2D1::RectF(0, 0, rtSize.width, rtSize.height), g_pBlackBrush);
+	//WCHAR wcText[] = L"1.23 fps";
+	//g_pRenderTarget->DrawTextW(wcText, ARRAYSIZE(wcText) - 1, g_pDWTextFormat, D2D1::RectF(0, 0, rtSize.width, rtSize.height), g_pBlackBrush);
 
 	g_pRenderTarget->EndDraw();
 }
@@ -179,6 +215,16 @@ LRESULT CApp::Proc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	case WM_PAINT:
 		hdc = BeginPaint(hWnd, &ps);
 		EndPaint(hWnd, &ps);
+		break;
+
+	case WM_MOUSEMOVE:
+		int x, y;
+		x = GET_X_LPARAM(lParam);
+		y = GET_Y_LPARAM(lParam);
+		break;
+
+	case WM_LBUTTONDOWN:
+
 		break;
 
 	case WM_DESTROY:

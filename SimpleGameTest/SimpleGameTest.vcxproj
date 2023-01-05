@@ -116,6 +116,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <ExceptionHandling>false</ExceptionHandling>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -140,10 +141,23 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="CApp.cpp" />
+    <ClCompile Include="CBitmap.cpp" />
+    <ClCompile Include="CObj.cpp" />
+    <ClCompile Include="CPlayer.cpp" />
+    <ClCompile Include="CScene.cpp" />
     <ClCompile Include="SimpleGameTest.cpp" />
+    <ClCompile Include="CTile.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CApp.h" />
+    <ClInclude Include="CBitmap.h" />
+    <ClInclude Include="CObj.h" />
+    <ClInclude Include="CPlayer.h" />
+    <ClInclude Include="CScene.h" />
+    <ClInclude Include="CTile.h" />
+    <ClInclude Include="Game.h" />
+    <ClInclude Include="Setting.h" />
+    <ClInclude Include="Util.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
