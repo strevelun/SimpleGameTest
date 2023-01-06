@@ -32,6 +32,9 @@ private:
 	IDWriteTextFormat* g_pDWTextFormat = nullptr;
 	ID2D1SolidColorBrush* g_pBlackBrush = nullptr;
 
+	int m_mouseX, m_mouseY;
+	int m_mag = 100; // 확대, 축소 배율
+
 private:
 	CApp() { }
 	~CApp() {}

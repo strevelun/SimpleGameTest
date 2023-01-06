@@ -19,11 +19,6 @@ CPlayer::~CPlayer()
 
 void CPlayer::Input()
 {
-	// 타일간 이동 중 일때는 이동키가 먹히지 않음. 즉 한번만 입력됨
-	// 만약 이동을 완료했다면 update에서 isMoving을 true
-	// 이동키를 누르면 최종 목적지가 xBoxPos에 업데이트되고 
-	// 이동키를 누르면 그냥 무조건 그 방향으로 쭉 이동시키면서 도착지와 비교. 
-
 	if (m_isMoving)
 		return;
 
@@ -56,24 +51,24 @@ void CPlayer::Input()
 
 }
 
-void CPlayer::Update()
+void CPlayer::Update(int _mag)
 {
 	char str[20] = "";
 	switch (m_dir)
 	{
 	case DIR::UP:
-		if (!CanGo(m_dir))
+		if (!CanGo(m_dir, _mag))
 			break;
 
 		m_ypos -= m_speed;
-		if ((m_yBoxPos) * 100 >= m_ypos)
+		if ((m_yBoxPos) *100 >= m_ypos)
 		{
 			m_ypos = (m_yBoxPos) * 100;
 			m_isMoving = false;
 		}
 		break;
 	case DIR::DOWN:
-		if (!CanGo(m_dir))
+		if (!CanGo(m_dir, _mag))
 			break;
 
 		m_ypos += m_speed;
@@ -84,35 +79,43 @@ void CPlayer::Update()
 		}
 		break;
 	case DIR::LEFT:
-		if (!CanGo(m_dir))
+		if (!CanGo(m_dir, _mag))
 			break;
 		m_xpos -= m_speed;
-		if ((m_xBoxPos) * 100 >= m_xpos)
+		if ((m_xBoxPos) *100 >= m_xpos)
 		{
 			m_xpos = (m_xBoxPos) * 100;
 			m_isMoving = false;
 		}
 		break;
 	case DIR::RIGHT:
-		if (!CanGo(m_dir))
+		if (!CanGo(m_dir, _mag ))
 			break;
 
 		m_xpos += m_speed;
 		if (m_xBoxPos * 100 <= m_xpos)
 		{
-			m_xpos = m_xBoxPos * 100;
+			m_xpos = m_xBoxPos * 100; // 디폴트 크기 기준으로 곱해야
 			m_isMoving = false;
 		}
 		break;
 	}
 }
 
-void CPlayer::Render(ID2D1HwndRenderTarget* _renderTarget)
+void CPlayer::Render(ID2D1HwndRenderTarget* _renderTarget, int _mag)
 {
-	m_bitmap->Render(_renderTarget, m_xpos, m_ypos, 100, 100);
+	float temp =  m_xpos * (_mag / 100.f);
+
+#ifdef _DEBUG
+	char str[50];
+	sprintf_s(str, "%f = %d * (%d / 100.0f)\n", temp, m_xpos, _mag);
+	OutputDebugStringA(str);
+#endif
+
+	m_bitmap->Render(_renderTarget, temp, m_ypos * _mag / 100.0f, _mag, _mag);
 }
 
-bool CPlayer::CanGo(DIR _dir)
+bool CPlayer::CanGo(DIR _dir, int _mag)
 {
 	switch (_dir)
 	{
@@ -125,11 +128,11 @@ bool CPlayer::CanGo(DIR _dir)
 		}
 		break;
 	case DIR::DOWN:
-		if (m_ypos + m_speed > SCREEN_HEIGHT - 100)
+		if (m_ypos + m_speed > SCREEN_HEIGHT - _mag)
 		{
 			m_isMoving = false;
-			m_yBoxPos = (SCREEN_HEIGHT / 100) - 1;
-			m_ypos = SCREEN_HEIGHT - 100;
+			m_yBoxPos = (SCREEN_HEIGHT / _mag) - 1;
+			m_ypos = SCREEN_HEIGHT - _mag;
 			return false;
 		}
 		break;
@@ -143,18 +146,18 @@ bool CPlayer::CanGo(DIR _dir)
 		}
 		break;
 	case DIR::RIGHT:
-		if (m_xpos + m_speed > SCREEN_WIDTH - 100)
+		if (m_xpos + m_speed > SCREEN_WIDTH - _mag)
 		{
 			m_isMoving = false;
-			m_xBoxPos = (SCREEN_WIDTH / 100) - 1;
-			m_xpos = SCREEN_WIDTH - 100;
+			m_xBoxPos = (SCREEN_WIDTH / _mag) - 1;
+			m_xpos = SCREEN_WIDTH - _mag;
 			return false;
 		}
 		break;
 	}
 
 	CTile* tile = CScene::GetInst()->GetTileAtPos(m_xBoxPos, m_yBoxPos);
-	if (tile == nullptr)
+	if (tile->GetType() == ObjType::None || tile->GetType() == ObjType::NonWalkable)
 	{
 		m_isMoving = false;
 		switch (_dir)

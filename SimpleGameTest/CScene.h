@@ -3,6 +3,7 @@
 #include <d2d1.h>
 #include <vector>
 #include <stdexcept>
+#include "CTile.h"
 
 class CTile;
 class CPlayer;
@@ -36,8 +37,8 @@ public:
 	}
 
 	void Input();
-	void Update();
-	void Render(ID2D1HwndRenderTarget* _renderTarget, ID2D1SolidColorBrush* _blackBrush);
+	void Update(int _mag);
+	void Render(ID2D1HwndRenderTarget* _renderTarget, ID2D1SolidColorBrush* _blackBrush, int _mag);
 	CTile* GetTileAtPos(int _x, int _y) {
 
 		//try {
@@ -50,5 +51,6 @@ public:
 
 		return m_vecObj[_y][_x];
 	}
+	void SetTile(int _x, int _y, ObjType _type);
 };
 

@@ -1,6 +1,7 @@
 #include "CApp.h"
 #include "Util.h"
 #include "Game.h"
+#include "ResourceManager.h"
 
 #include <windowsx.h>
 
@@ -11,10 +12,18 @@ IWICImagingFactory* g_pWICFactory = nullptr;
 
 HRESULT LoadBitmapFromFile(PCWSTR _wcFileName, ID2D1Bitmap** _pBitmap)
 {
+	/*
+	char dest[100];
+	sprintf(dest, "%s%s", _path, _wcFileName);
+	wchar_t wtext[20];
+	mbstowcs(wtext, dest, strlen(dest) + 1);//Plus null
+	LPWSTR ptr = wtext;
+	*/
+
 	HRESULT hr = S_OK;
 	IWICBitmapDecoder* pDecoder = nullptr;
 
-	hr = g_pWICFactory->CreateDecoderFromFilename(_wcFileName, NULL, GENERIC_READ, WICDecodeMetadataCacheOnLoad, &pDecoder);
+	hr = g_pWICFactory->CreateDecoderFromFilename(L"Resource\\Image\\Tile\\NonWalkable\\Object2_2.png", NULL, GENERIC_READ, WICDecodeMetadataCacheOnLoad, &pDecoder);
 	if (FAILED(hr)) return hr;
 
 	IWICBitmapFrameDecode* pFrame = nullptr;
@@ -153,6 +162,9 @@ HRESULT CApp::Init(HINSTANCE hInstance, int nCmdShow)
 		return 0;
 	}
 
+	if (!ResourceManager::GetInst()->Init())
+		return 0;
+
 	return S_OK;
 }
 
@@ -164,7 +176,7 @@ void CApp::Input()
 
 void CApp::Update()
 {
-	CScene::GetInst()->Update();
+	CScene::GetInst()->Update(m_mag);
 }
 
 void CApp::Render()
@@ -174,7 +186,7 @@ void CApp::Render()
 
 	D2D1_SIZE_F rtSize = g_pRenderTarget->GetSize();
 
-	CScene::GetInst()->Render(g_pRenderTarget, g_pBlackBrush);
+	CScene::GetInst()->Render(g_pRenderTarget, g_pBlackBrush, m_mag);
 
 	//WCHAR wcText[] = L"1.23 fps";
 	//g_pRenderTarget->DrawTextW(wcText, ARRAYSIZE(wcText) - 1, g_pDWTextFormat, D2D1::RectF(0, 0, rtSize.width, rtSize.height), g_pBlackBrush);
@@ -218,13 +230,25 @@ LRESULT CApp::Proc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		break;
 
 	case WM_MOUSEMOVE:
-		int x, y;
-		x = GET_X_LPARAM(lParam);
-		y = GET_Y_LPARAM(lParam);
+		m_mouseX = GET_X_LPARAM(lParam);
+		m_mouseY = GET_Y_LPARAM(lParam);
 		break;
 
 	case WM_LBUTTONDOWN:
+		CScene::GetInst()->SetTile(m_mouseX / m_mag, m_mouseY / m_mag, ObjType::Walkable);
+		break;
 
+	case WM_MOUSEWHEEL:
+		if ((short)HIWORD(wParam) < 0)
+		{
+			if (m_mag > 25)
+				m_mag -= 25;
+		}
+		else
+		{
+			if (m_mag < 200)
+				m_mag += 25;
+		}
 		break;
 
 	case WM_DESTROY:

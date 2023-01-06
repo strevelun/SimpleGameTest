@@ -145,6 +145,7 @@
     <ClCompile Include="CObj.cpp" />
     <ClCompile Include="CPlayer.cpp" />
     <ClCompile Include="CScene.cpp" />
+    <ClCompile Include="ResourceManager.cpp" />
     <ClCompile Include="SimpleGameTest.cpp" />
     <ClCompile Include="CTile.cpp" />
   </ItemGroup>
@@ -156,6 +157,7 @@
     <ClInclude Include="CScene.h" />
     <ClInclude Include="CTile.h" />
     <ClInclude Include="Game.h" />
+    <ClInclude Include="ResourceManager.h" />
     <ClInclude Include="Setting.h" />
     <ClInclude Include="Util.h" />
   </ItemGroup>

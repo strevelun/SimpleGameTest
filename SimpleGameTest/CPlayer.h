@@ -27,8 +27,8 @@ public:
 	~CPlayer();
 
 	void Input();
-	void Update();
-	void Render(ID2D1HwndRenderTarget* _renderTarget);
-	bool CanGo(DIR _dir);
+	void Update(int _mag);
+	void Render(ID2D1HwndRenderTarget* _renderTarget, int _mag);
+	bool CanGo(DIR _dir, int _mag);
 };
 
