@@ -18,7 +18,7 @@ class CPlayer
 {
 	bool m_isMoving = false;
 	DIR m_dir;
-	int m_speed = 10;
+	int m_speed = 20;
 
 	//std::queue<DIR> m_keyQueue;
 

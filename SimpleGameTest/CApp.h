@@ -1,15 +1,10 @@
 #pragma once
 #include <windows.h>
-#include <d2d1.h>
-#include <dwrite.h>
-#include <wincodec.h>
+
 
 #include "CScene.h"
 #include "CPlayer.h"
 
-#pragma comment(lib, "d2d1.lib")
-#pragma comment(lib, "dwrite.lib")
-#pragma comment(lib, "windowscodecs.lib")
 
 #define MAX_LOADSTRING 100
 #define WIDTH           1200
@@ -27,10 +22,6 @@ private:
 	HINSTANCE m_hInst = nullptr;
 	HWND m_hWnd = nullptr;
 
-	ID2D1Factory* g_pD2DFactory = nullptr;
-	IDWriteFactory* g_pDWriteFactory = nullptr;
-	IDWriteTextFormat* g_pDWTextFormat = nullptr;
-	ID2D1SolidColorBrush* g_pBlackBrush = nullptr;
 
 	int m_mouseX, m_mouseY;
 	int m_mag = 100; // 확대, 축소 배율
@@ -39,9 +30,6 @@ private:
 	CApp() { }
 	~CApp() {}
 
-private:
-	HRESULT InitDevice();
-	void CleanupDevice();
 
 public:
 	static CApp* GetInstance()
@@ -56,7 +44,6 @@ public:
 	void Render();
 	int Run();
 
-	HRESULT LoadBitmapFromFile(PCWSTR _wcFileName, ID2D1Bitmap* _pBitmap);
 
 	LRESULT CALLBACK Proc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 };

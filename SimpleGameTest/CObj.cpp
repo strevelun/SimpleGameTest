@@ -1,6 +1,11 @@
 #include "CObj.h"
 #include "CBitmap.h"
-#include "Util.h"
+#include "CCore.h"
+
+
+#pragma comment(lib, "d2d1.lib")
+#pragma comment(lib, "dwrite.lib")
+#pragma comment(lib, "windowscodecs.lib")
 
 CObj::CObj()
 {
@@ -27,6 +32,6 @@ void CObj::Render(ID2D1HwndRenderTarget* _renderTarget)
 void CObj::SetBitmap(PCWSTR _fileName)
 {
 	ID2D1Bitmap* temp = m_bitmap->GetBitmap();
-	LoadBitmapFromFile(_fileName, &temp);
+	CCore::GetInst()->LoadBitmapFromFile(_fileName, &temp);
 	m_bitmap->SetBitmap(temp);
 }

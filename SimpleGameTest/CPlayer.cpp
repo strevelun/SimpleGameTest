@@ -1,7 +1,6 @@
 #include <Windows.h>
 
 #include "CPlayer.h"
-#include "Setting.h"
 #include "CBitmap.h"
 #include "Game.h"
 #include "CScene.h"
@@ -157,6 +156,9 @@ bool CPlayer::CanGo(DIR _dir, int _mag)
 	}
 
 	CTile* tile = CScene::GetInst()->GetTileAtPos(m_xBoxPos, m_yBoxPos);
+	if (tile == nullptr) 
+		return false;
+
 	if (tile->GetType() == ObjType::None || tile->GetType() == ObjType::NonWalkable)
 	{
 		m_isMoving = false;

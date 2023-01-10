@@ -56,8 +56,12 @@ void CScene::Render(ID2D1HwndRenderTarget* _renderTarget, ID2D1SolidColorBrush* 
 	m_player->Render(_renderTarget, _mag);
 }
 
-void CScene::SetTile(int _x, int _y, ObjType _type)
+void CScene::SetTile(unsigned int _x, unsigned int _y, ObjType _type)
 {
-	// try
+	if (_x >= SCREEN_WIDTH / 100)
+		return;
+	if (_y >= SCREEN_HEIGHT / 100)
+		return;
+
 	m_vecObj[_y][_x] = new CTile(_y, _x, _type);
 }

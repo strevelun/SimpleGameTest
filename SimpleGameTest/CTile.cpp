@@ -6,7 +6,7 @@ CTile::CTile(int _y, int _x, ObjType _type)
 	m_type = _type;
 	m_xBoxPos = _x;
 	m_yBoxPos = _y;
-	SetBitmap(L"tile6.png");
+	SetBitmap(L"Resource\\Image\\Tile\\Walkable\\tile5.png");
 	m_size = m_bitmap->GetBitmap()->GetSize();
 }
 

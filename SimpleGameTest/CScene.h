@@ -4,6 +4,7 @@
 #include <vector>
 #include <stdexcept>
 #include "CTile.h"
+#include "Game.h"
 
 class CTile;
 class CPlayer;
@@ -39,18 +40,14 @@ public:
 	void Input();
 	void Update(int _mag);
 	void Render(ID2D1HwndRenderTarget* _renderTarget, ID2D1SolidColorBrush* _blackBrush, int _mag);
-	CTile* GetTileAtPos(int _x, int _y) {
-
-		//try {
-			CTile* tile = m_vecObj[_y][_x];
-		//}
-		//catch (const std::out_of_range& e) 
-		//{
-		//	return nullptr;
-		//}
+	
+	CTile* GetTileAtPos(unsigned int _x, unsigned int _y) {
+		if (_x >= SCREEN_WIDTH / 100) return nullptr;
+		if (_y >= SCREEN_HEIGHT / 100) return nullptr;
 
 		return m_vecObj[_y][_x];
 	}
-	void SetTile(int _x, int _y, ObjType _type);
+
+	void SetTile(unsigned int _x, unsigned int _y, ObjType _type);
 };
 
